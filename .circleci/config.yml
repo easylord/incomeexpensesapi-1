@@ -1,21 +1,20 @@
 version: 2.1
 
-orbs:
-  python: circleci/python@0.2.1
+workflows:
+  test-env-vars:
+    jobs:
+      - build
 
 jobs:
-  build-and-test:
-    executor: python/default
+  build:
+    docker:
+      - image: circleci/python:3.7.2
+        auth:
+          username: mydockerhub-user
+          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
     steps:
       - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
-      - run:
-          command: ./manage.py test
-          name: Test
-
-workflows:
-  main:
-    jobs:
-      - build-and-test
+      - run: 
+          name: "echo an env var that is part of our project"
+          command: |
+            echo $MY_ENV_VAR # this env var must be set within the project
